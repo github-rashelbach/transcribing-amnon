@@ -1,8 +1,8 @@
 import { Handler } from 'aws-lambda';
-import { MessageUtils } from '../utils/message';
+import { Responder } from '../utils/responder';
 
 export const hello: Handler = async () => {
-  return MessageUtils.success<{ data: number }>({
+  return Responder.success<{ data: number }>({
     data: 55,
   });
 };
