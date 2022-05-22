@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2019",
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "strict": true,
+    "noEmitHelpers": true,
+    "noUnusedLocals": true,
+    "strictBindCallApply": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "skipLibCheck": true
+  },
+  "include": [
+    "./test/**/*.ts",
+    "./src/**/*.ts"
+  ],
+}

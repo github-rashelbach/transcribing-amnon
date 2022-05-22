@@ -1,4 +1,4 @@
-export class ApiGatewayResponse {
+interface ApiGatewayResponse {
   statusCode: number;
   body: string;
 }
@@ -8,12 +8,12 @@ enum StatusCode {
 }
 
 class Result<T> {
-
-  constructor(private readonly statusCode: number,
-              private readonly code: number,
-              private readonly message: string,
-              private readonly data?: T) {
-  }
+  constructor(
+    private readonly statusCode: number,
+    private readonly code: number,
+    private readonly message: string,
+    private readonly data?: T,
+  ) {}
 
   /**
    * Serverless: According to the API Gateway specs, the body content must be stringified
