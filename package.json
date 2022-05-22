@@ -10,7 +10,7 @@
     "test": "jest",
     "posttest": "npm run lint",
     "predeploy": "npm run test",
-    "lint": "eslint",
+    "lint": "eslint .",
     "deploy": "serverless deploy"
   },
   "dependencies": {},
