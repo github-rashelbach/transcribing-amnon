@@ -1,3 +1,5 @@
+org: shilomagen
+app: transcribing-amnon
 service: transcribing-amnon
 frameworkVersion: '3'
 
