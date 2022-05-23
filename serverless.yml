@@ -6,12 +6,12 @@ provider:
   runtime: nodejs14.x
 
 functions:
-  hello:
-    handler: src/handlers/hello.hello
+  handleMessage:
+    handler: src/handlers/incoming-message.handle
     events:
       - httpApi:
-          path: /
-          method: get
+          path: /incoming-message
+          method: post
 
 plugins:
   - serverless-plugin-typescript
