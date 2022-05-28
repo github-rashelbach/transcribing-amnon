@@ -2,12 +2,27 @@ import { Logger } from 'pino';
 import { AxiosInstance } from 'axios';
 import { LoggerMessages } from './logger';
 
+const Urls = {
+  GraphURL: 'https://graph.facebook.com/v13.0/',
+};
+
 export interface IHttpService {
   downloadFile: (url: string) => Promise<Uint8Array>;
+  getMediaUrl: (mediaId: string) => Promise<string>;
 }
 
 export class HttpService implements IHttpService {
   constructor(private readonly logger: Logger, private readonly httpClient: AxiosInstance) {
+  }
+
+  getMediaUrl(mediaId: string): Promise<string> {
+    this.logger.info(mediaId, LoggerMessages.GetMediaUrl);
+    return this.httpClient.get(`${Urls.GraphURL}${mediaId}`)
+      .then(response => (response.data.url as string))
+      .catch(error => {
+        this.logger.error(error.response, LoggerMessages.GetMediaUrlError);
+        throw error;
+      });
   }
 
   downloadFile(url: string): Promise<Uint8Array> {
@@ -19,5 +34,6 @@ export class HttpService implements IHttpService {
         throw error;
       });
   }
+
 
 }

@@ -8,6 +8,9 @@ export enum LoggerMessages {
   GoogleSpeechToTextResponse = 'GoogleSpeechToTextResponse',
   DownloadFile = 'DownloadFile',
   DownloadFileError = 'DownloadFileError',
+  GetMediaUrl = 'GetMediaUrl',
+  MediaURL = 'MediaURL',
+  GetMediaUrlError = 'GetMediaUrlError',
 }
 
 export const createLogger = (event: APIGatewayEvent, context: Context) => {
