@@ -1,21 +1,21 @@
 import { MessageBody, WhatsappMessagePayload } from '../../external-types/whatsapp';
-import { AudioRecording } from '../../types';
+import { FacebookAudioRecording } from '../../types';
 import { AudioMessage } from '../../external-types/messages';
 
 enum MessageTypes {
   audio = 'audio',
 }
 
-export class PayloadExtractor {
+export class CloudApiPayloadExtractor {
   constructor(private readonly payload: WhatsappMessagePayload) {}
 
   static isAudio(message: MessageBody | undefined): message is MessageBody & AudioMessage {
     return message?.type === MessageTypes.audio;
   }
 
-  getAudioData(): AudioRecording | null {
+  getAudioData(): FacebookAudioRecording | null {
     const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (PayloadExtractor.isAudio(message)) {
+    if (CloudApiPayloadExtractor.isAudio(message)) {
       return {
         mediaId: message.audio.id,
         messageId: message.id,

@@ -14,9 +14,12 @@
     "deploy": "serverless deploy"
   },
   "dependencies": {
+    "@google-cloud/speech": "^4.10.2",
+    "axios": "^0.27.2",
     "lodash": "^4.17.21",
     "pino": "^7.11.0",
-    "pino-lambda": "^4.0.0"
+    "pino-lambda": "^4.0.0",
+    "twilio": "^3.77.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",

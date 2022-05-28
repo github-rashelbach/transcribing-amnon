@@ -9,7 +9,7 @@ provider:
 
 functions:
   handleMessage:
-    handler: src/handlers/incoming-message.handle
+    handler: src/handlers/cloud-api-handler.handle
     events:
       - httpApi:
           path: /incoming-message

@@ -3,7 +3,11 @@ import { lambdaRequestTracker, pinoLambdaDestination } from 'pino-lambda';
 import { APIGatewayEvent, Context } from 'aws-lambda';
 
 export enum LoggerMessages {
-  IncomingMessage = 'IncomingMessage',
+  CloudApiIncomingMessage = 'CloudApiIncomingMessage',
+  TwilioIncomingMessage = 'TwilioIncomingMessage',
+  GoogleSpeechToTextResponse = 'GoogleSpeechToTextResponse',
+  DownloadFile = 'DownloadFile',
+  DownloadFileError = 'DownloadFileError',
 }
 
 export const createLogger = (event: APIGatewayEvent, context: Context) => {

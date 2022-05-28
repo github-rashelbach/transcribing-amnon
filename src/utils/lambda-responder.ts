@@ -30,7 +30,7 @@ class Result<T> {
   }
 }
 
-export class Responder {
+export class LambdaResponder {
   static success<T>(data: T): ApiGatewayResponse {
     const result = new Result<T>(StatusCode.success, 0, 'success', data);
     return result.bodyToString();
