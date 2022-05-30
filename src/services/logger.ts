@@ -11,6 +11,8 @@ export enum LoggerMessages {
   GetMediaUrl = 'GetMediaUrl',
   MediaURL = 'MediaURL',
   GetMediaUrlError = 'GetMediaUrlError',
+  ReceivedTextMessage = 'ReceivedTextMessage',
+  TranscriptionSuccess = 'TranscriptionSuccess',
 }
 
 export const createLogger = (event: APIGatewayEvent, context: Context) => {

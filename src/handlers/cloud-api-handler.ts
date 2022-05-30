@@ -5,8 +5,11 @@ import { WhatsappMessagePayload } from '../external-types/whatsapp';
 import axios from 'axios';
 import { HttpService } from '../services/http';
 import {
-  CloudApiPayloadExtractor
+  CloudApiPayloadExtractor, MessageTypes
 } from '../utils/cloud-api-payload-extractor/cloud-api-payload-extractor';
+import { Logger } from 'pino';
+import { SpeechToText } from '../services/speech-to-text/speech-to-text';
+import { GoogleSpeechToTextProvider } from '../services/speech-to-text/providers/google';
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN!;
 
@@ -15,17 +18,34 @@ export const cloudApiHandler: Handler<APIGatewayEvent> = async (event, context) 
   const httpClient = axios.create({ headers: { 'Authorization': 'Bearer ' + CLOUD_API_ACCESS_TOKEN } });
   const httpService = new HttpService(logger, httpClient);
   if (event.body) {
-    const whatsAppPayload: WhatsappMessagePayload = JSON.parse(event.body);
-    logger.info(whatsAppPayload, LoggerMessages.CloudApiIncomingMessage);
-    const payloadExtractor = new CloudApiPayloadExtractor(whatsAppPayload);
-    const mediaInfo = payloadExtractor.getAudioData();
-    if (mediaInfo) {
-      const mediaUrl = await httpService.getMediaUrl(mediaInfo.mediaId);
-      logger.info(mediaUrl, LoggerMessages.GetMediaUrl);
-    }
-
-
-    return LambdaResponder.success({ whatsAppPayload });
+    return handleMessage(JSON.parse(event.body), httpService, logger);
   }
   return LambdaResponder.error(1000, 'Could not response with body');
 };
+
+export async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
+  logger.info(whatsappPayload, LoggerMessages.CloudApiIncomingMessage);
+  const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
+  switch (payloadExtractor.getMessageType()) {
+    case MessageTypes.Text: {
+      const text = payloadExtractor.getText();
+      logger.info(text, LoggerMessages.ReceivedTextMessage);
+      return LambdaResponder.success({ text });
+    }
+    case MessageTypes.Audio: {
+      const speechToText = new SpeechToText(new GoogleSpeechToTextProvider(logger));
+      const audioData = payloadExtractor.getAudioData();
+      if (audioData) {
+        const mediaUrl = await httpService.getMediaUrl(audioData.mediaId);
+        const data = await httpService.downloadFile(mediaUrl);
+        const transcription = await speechToText.recognize(data);
+        logger.info(transcription, LoggerMessages.TranscriptionSuccess);
+        return LambdaResponder.success({ transcription });
+      }
+      return LambdaResponder.error(1000, 'Could not find audio when type is audio');
+    }
+    default:
+      return LambdaResponder.error(1000, 'Could not response with body');
+  }
+
+}

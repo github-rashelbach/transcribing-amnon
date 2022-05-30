@@ -18,8 +18,9 @@ const opts = {
 
 export class GoogleSpeechToTextProvider implements SpeechToTextAdapter {
   constructor(
+    private readonly logger: Logger,
     private readonly client: SpeechClient = new SpeechClient(opts),
-    private readonly logger: Logger) {
+    ) {
   }
 
   async recognize(audio: Recording): Promise<string> {

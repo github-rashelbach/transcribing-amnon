@@ -1,26 +1,51 @@
 import { MessageBody, WhatsappMessagePayload } from '../../external-types/whatsapp';
 import { FacebookAudioRecording } from '../../types';
-import { AudioMessage } from '../../external-types/messages';
+import { AudioMessage, TextMessage } from '../../external-types/messages';
 
-enum MessageTypes {
-  audio = 'audio',
+export enum MessageTypes {
+  Audio = 'audio',
+  Text = 'text',
+  Sticker = 'sticker',
+  Image = 'image',
+  Location = 'location',
 }
 
+const CloudApiTypeToType = {
+  audio: MessageTypes.Audio,
+  text: MessageTypes.Text,
+  image: MessageTypes.Image,
+  sticker: MessageTypes.Sticker,
+  location: MessageTypes.Location,
+
+
+};
+
 export class CloudApiPayloadExtractor {
-  constructor(private readonly payload: WhatsappMessagePayload) {}
+  constructor(private readonly payload: WhatsappMessagePayload) {
+  }
 
   static isAudio(message: MessageBody | undefined): message is MessageBody & AudioMessage {
-    return message?.type === MessageTypes.audio;
+    return message?.type === MessageTypes.Audio;
+  }
+
+  getMessageType(): string | null {
+    const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+    return CloudApiTypeToType[message?.type || ''] || null;
+  }
+
+  getText(): string | null {
+    const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+    return this.getMessageType() === MessageTypes.Text ? (message as TextMessage).text.body : null;
   }
 
   getAudioData(): FacebookAudioRecording | null {
     const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (CloudApiPayloadExtractor.isAudio(message)) {
+    if (this.getMessageType() === MessageTypes.Audio) {
       return {
-        mediaId: message.audio.id,
-        messageId: message.id,
-        timestamp: message.timestamp,
-        senderId: message.from,
+        mediaId: (message as AudioMessage).audio.id,
+        messageId: message?.id || '',
+        timestamp: message?.timestamp || '',
+        senderId: message?.from || '',
       };
     }
     return null;
