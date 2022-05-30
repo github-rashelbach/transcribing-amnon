@@ -11,6 +11,7 @@ provider:
     GCLOUD_CLIENT_EMAIL: ${param:GCLOUD_CLIENT_EMAIL}
     GCLOUD_PRIVATE_KEY: ${param:GCLOUD_PRIVATE_KEY}
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
+    WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
 
 functions:
   handleMessage:
@@ -18,7 +19,9 @@ functions:
     events:
       - httpApi:
           path: /incoming-message
-          method: post
+          allowedMethods:
+            - GET
+            - POST
 
 plugins:
   - serverless-plugin-typescript

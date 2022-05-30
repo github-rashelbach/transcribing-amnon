@@ -1,4 +1,4 @@
-import { APIGatewayEvent, Handler } from 'aws-lambda';
+import { APIGatewayEvent, APIGatewayProxyEvent, Handler } from 'aws-lambda';
 import { createLogger, LoggerMessages } from '../services/logger';
 import { LambdaResponder } from '../utils/lambda-responder';
 import { WhatsappMessagePayload } from '../external-types/whatsapp';
@@ -15,6 +15,9 @@ const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN!;
 
 export const cloudApiHandler: Handler<APIGatewayEvent> = async (event, context) => {
   const logger = createLogger(event, context);
+  if (event.httpMethod === 'GET') {
+    return verifyWebhook(event, logger);
+  }
   const httpClient = axios.create({ headers: { 'Authorization': 'Bearer ' + CLOUD_API_ACCESS_TOKEN } });
   const httpService = new HttpService(logger, httpClient);
   if (event.body) {
@@ -49,3 +52,15 @@ export async function handleMessage(whatsappPayload: WhatsappMessagePayload, htt
   }
 
 }
+
+export const verifyWebhook = (event: APIGatewayProxyEvent, logger: Logger) => {
+  logger.info(event, LoggerMessages.CloudApiVerifyWebhook);
+  const mode = event.queryStringParameters?.['hub.mode'];
+  const token = event.queryStringParameters?.['hub.verify_token'];
+  const challenge = event.queryStringParameters?.['hub.challenge'];
+
+  return mode === 'subscribe' && token === process.env.WEBHOOK_VERIFY_TOKEN ?
+    LambdaResponder.success(challenge) :
+    LambdaResponder.error(403, 'Could not verify webhook');
+
+};
