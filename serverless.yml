@@ -19,9 +19,7 @@ functions:
     events:
       - httpApi:
           path: /incoming-message
-          allowedMethods:
-            - GET
-            - POST
+          method: '*'
 
 plugins:
   - serverless-plugin-typescript
