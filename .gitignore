@@ -6,3 +6,5 @@ jspm_packages
 dist
 # Serverless directories
 .serverless
+
+.build

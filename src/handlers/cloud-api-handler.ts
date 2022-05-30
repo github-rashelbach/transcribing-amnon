@@ -1,21 +1,25 @@
-import { APIGatewayEvent, APIGatewayProxyEvent, Handler } from 'aws-lambda';
+import { Handler } from 'aws-lambda';
 import { createLogger, LoggerMessages } from '../services/logger';
 import { LambdaResponder } from '../utils/lambda-responder';
 import { WhatsappMessagePayload } from '../external-types/whatsapp';
 import axios from 'axios';
 import { HttpService } from '../services/http';
 import {
-  CloudApiPayloadExtractor, MessageTypes
+  CloudApiPayloadExtractor,
+  MessageTypes
 } from '../utils/cloud-api-payload-extractor/cloud-api-payload-extractor';
 import { Logger } from 'pino';
 import { SpeechToText } from '../services/speech-to-text/speech-to-text';
 import { GoogleSpeechToTextProvider } from '../services/speech-to-text/providers/google';
+import { APIGatewayProxyEventV2 } from 'aws-lambda/trigger/api-gateway-proxy';
+import { StatusCodes } from 'http-status-codes';
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN!;
 
-export const cloudApiHandler: Handler<APIGatewayEvent> = async (event, context) => {
+export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, context) => {
   const logger = createLogger(event, context);
-  if (event.httpMethod === 'GET') {
+  logger.info(event, LoggerMessages.CloudApiIncomingMessage);
+  if (event.requestContext.http.method === 'GET') {
     return verifyWebhook(event, logger);
   }
   const httpClient = axios.create({ headers: { 'Authorization': 'Bearer ' + CLOUD_API_ACCESS_TOKEN } });
@@ -23,17 +27,17 @@ export const cloudApiHandler: Handler<APIGatewayEvent> = async (event, context) 
   if (event.body) {
     return handleMessage(JSON.parse(event.body), httpService, logger);
   }
-  return LambdaResponder.error(1000, 'Could not response with body');
+  return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not response with body');
 };
 
 async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
-  logger.info(whatsappPayload, LoggerMessages.CloudApiIncomingMessage);
+  logger.info(whatsappPayload, LoggerMessages.WhatsappPayload);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
   switch (payloadExtractor.getMessageType()) {
     case MessageTypes.Text: {
       const text = payloadExtractor.getText();
       logger.info(text, LoggerMessages.ReceivedTextMessage);
-      return LambdaResponder.success({ text });
+      return LambdaResponder.success(JSON.stringify({ text }));
     }
     case MessageTypes.Audio: {
       const speechToText = new SpeechToText(new GoogleSpeechToTextProvider(logger));
@@ -43,24 +47,24 @@ async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpServic
         const data = await httpService.downloadFile(mediaUrl);
         const transcription = await speechToText.recognize(data);
         logger.info(transcription, LoggerMessages.TranscriptionSuccess);
-        return LambdaResponder.success({ transcription });
+        return LambdaResponder.success(JSON.stringify({ transcription }));
       }
-      return LambdaResponder.error(1000, 'Could not find audio when type is audio');
+      return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not find audio when type is audio');
     }
     default:
-      return LambdaResponder.error(1000, 'Could not response with body');
+      return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not response with body');
   }
 
 }
 
-export const verifyWebhook = (event: APIGatewayProxyEvent, logger: Logger) => {
+const verifyWebhook = (event: APIGatewayProxyEventV2, logger: Logger) => {
   logger.info(event, LoggerMessages.CloudApiVerifyWebhook);
   const mode = event.queryStringParameters?.['hub.mode'];
   const token = event.queryStringParameters?.['hub.verify_token'];
-  const challenge = event.queryStringParameters?.['hub.challenge'];
+  const challenge = event.queryStringParameters?.['hub.challenge'] || '';
 
   return mode === 'subscribe' && token === process.env.WEBHOOK_VERIFY_TOKEN ?
     LambdaResponder.success(challenge) :
-    LambdaResponder.error(403, 'Could not verify webhook');
+    LambdaResponder.error(StatusCodes.UNAUTHORIZED, 'Could not verify webhook');
 
 };
