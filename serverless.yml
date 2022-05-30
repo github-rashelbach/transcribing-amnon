@@ -15,7 +15,7 @@ provider:
 
 functions:
   handleMessage:
-    handler: src/handlers/cloud-api-handler.handle
+    handler: src/handlers/cloud-api-handler.cloudApiHandler
     events:
       - httpApi:
           path: /incoming-message

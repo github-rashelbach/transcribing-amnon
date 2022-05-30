@@ -26,7 +26,7 @@ export const cloudApiHandler: Handler<APIGatewayEvent> = async (event, context) 
   return LambdaResponder.error(1000, 'Could not response with body');
 };
 
-export async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
+async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
   logger.info(whatsappPayload, LoggerMessages.CloudApiIncomingMessage);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
   switch (payloadExtractor.getMessageType()) {
