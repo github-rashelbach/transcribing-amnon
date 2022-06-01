@@ -23,7 +23,7 @@ export class HttpService implements IHttpService {
     return this.httpClient.get(`${BASE_URL}/${mediaId}`)
       .then(response => (response.data.url as string))
       .catch(error => {
-        this.logger.error({ error: error.response }, LoggerMessages.GetMediaUrlError);
+        this.logger.error({ error: error.data }, LoggerMessages.GetMediaUrlError);
         throw error;
       });
   }
@@ -42,12 +42,12 @@ export class HttpService implements IHttpService {
     const url = Urls.Messages(fromPhoneNumberId);
     this.logger.info({ message }, LoggerMessages.SendMessage);
     return this.httpClient.post(url, message)
-      .then(response => {
-        this.logger.info({ response }, LoggerMessages.SendMessageSuccess);
+      .then(({data}) => {
+        this.logger.info({ data }, LoggerMessages.SendMessageSuccess);
         return true;
       })
       .catch(error => {
-        this.logger.error({ error: error.response }, LoggerMessages.SendMessageError);
+        this.logger.error({ error: error.data }, LoggerMessages.SendMessageError);
         return false;
       });
   }
