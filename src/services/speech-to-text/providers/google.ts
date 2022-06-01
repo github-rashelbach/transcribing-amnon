@@ -28,7 +28,8 @@ export class GoogleSpeechToTextProvider implements SpeechToTextAdapter {
       config: {
         encoding: 'OGG_OPUS',
         sampleRateHertz: 16000,
-        languageCode: 'iw-IL'
+        languageCode: 'iw-IL',
+        enableAutomaticPunctuation: true,
       },
       audio: {
         content: audio.data,

@@ -16,6 +16,8 @@ provider:
 functions:
   handleMessage:
     handler: src/handlers/cloud-api-handler.cloudApiHandler
+    timeout: 100
+    memorySize: 512
     events:
       - httpApi:
           path: /incoming-message
