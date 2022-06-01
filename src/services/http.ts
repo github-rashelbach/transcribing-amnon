@@ -26,7 +26,7 @@ export class HttpService implements IHttpService {
   }
 
   downloadFile(url: string): Promise<Uint8Array> {
-    this.logger.info(url, LoggerMessages.DownloadFile);
+    this.logger.info({ url }, LoggerMessages.DownloadFile);
     return this.httpClient.get(url, { responseType: 'arraybuffer' })
       .then(response => (response.data as Uint8Array))
       .catch(error => {
