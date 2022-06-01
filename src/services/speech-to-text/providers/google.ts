@@ -30,6 +30,7 @@ export class GoogleSpeechToTextProvider implements SpeechToTextAdapter {
         sampleRateHertz: 16000,
         languageCode: 'iw-IL',
         enableAutomaticPunctuation: true,
+        enableSpokenPunctuation: { value: true }
       },
       audio: {
         content: audio.data,
