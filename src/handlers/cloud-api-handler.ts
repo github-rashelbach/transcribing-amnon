@@ -18,7 +18,7 @@ const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN!;
 
 export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, context) => {
   const logger = createLogger(event, context);
-  logger.info(event, LoggerMessages.CloudApiIncomingMessage);
+  logger.info({ event }, LoggerMessages.CloudApiIncomingMessage);
   if (event.requestContext.http.method === 'GET') {
     return verifyWebhook(event, logger);
   }
@@ -31,12 +31,12 @@ export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, co
 };
 
 async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
-  logger.info(whatsappPayload, LoggerMessages.WhatsappPayload);
+  logger.info({ whatsappPayload }, LoggerMessages.WhatsappPayload);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
   switch (payloadExtractor.getMessageType()) {
     case MessageTypes.Text: {
       const text = payloadExtractor.getText();
-      logger.info(text, LoggerMessages.ReceivedTextMessage);
+      logger.info({ text }, LoggerMessages.ReceivedTextMessage);
       return LambdaResponder.success(JSON.stringify({ text }));
     }
     case MessageTypes.Audio: {
@@ -46,7 +46,7 @@ async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpServic
         const mediaUrl = await httpService.getMediaUrl(audioData.mediaId);
         const data = await httpService.downloadFile(mediaUrl);
         const transcription = await speechToText.recognize(data);
-        logger.info(transcription, LoggerMessages.TranscriptionSuccess);
+        logger.info({ transcription }, LoggerMessages.TranscriptionSuccess);
         return LambdaResponder.success(JSON.stringify({ transcription }));
       }
       return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not find audio when type is audio');
@@ -58,7 +58,7 @@ async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpServic
 }
 
 const verifyWebhook = (event: APIGatewayProxyEventV2, logger: Logger) => {
-  logger.info(event, LoggerMessages.CloudApiVerifyWebhook);
+  logger.info({ event }, LoggerMessages.CloudApiVerifyWebhook);
   const mode = event.queryStringParameters?.['hub.mode'];
   const token = event.queryStringParameters?.['hub.verify_token'];
   const challenge = event.queryStringParameters?.['hub.challenge'] || '';

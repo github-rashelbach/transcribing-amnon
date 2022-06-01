@@ -16,11 +16,11 @@ export class HttpService implements IHttpService {
   }
 
   getMediaUrl(mediaId: string): Promise<string> {
-    this.logger.info(mediaId, LoggerMessages.GetMediaUrl);
+    this.logger.info({ mediaId }, LoggerMessages.GetMediaUrl);
     return this.httpClient.get(`${Urls.GraphURL}${mediaId}`)
       .then(response => (response.data.url as string))
       .catch(error => {
-        this.logger.error(error.response, LoggerMessages.GetMediaUrlError);
+        this.logger.error({ error: error.response }, LoggerMessages.GetMediaUrlError);
         throw error;
       });
   }
@@ -30,7 +30,7 @@ export class HttpService implements IHttpService {
     return this.httpClient.get(url, { responseType: 'arraybuffer' })
       .then(response => (response.data as Uint8Array))
       .catch(error => {
-        this.logger.error(error.data, LoggerMessages.DownloadFileError);
+        this.logger.error({ error: error.data }, LoggerMessages.DownloadFileError);
         throw error;
       });
   }

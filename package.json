@@ -11,7 +11,8 @@
     "posttest": "npm run lint",
     "predeploy": "npm run test",
     "lint": "eslint .",
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "run-local":"serverless invoke local --function handleMessage --path cloud-api-message.json"
   },
   "dependencies": {
     "@google-cloud/speech": "^4.10.2",
