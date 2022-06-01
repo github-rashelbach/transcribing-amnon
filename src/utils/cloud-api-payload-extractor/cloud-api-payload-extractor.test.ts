@@ -96,4 +96,12 @@ describe('[cloud-api-payload-extractor]', () => {
       expect(payloadExtractor.getMessageType()).toBeNull();
     });
   });
+  describe('Message metadata Extractor', () => {
+    it('should extract phone number id', async () => {
+      const phoneNumberId = 'phoneNumberId';
+      const payload = WhatsAppPayloadFixtures.valid({entry: [{changes: [{value: {metadata: {phone_number_id: phoneNumberId}}}]}]});
+      const payloadExtractor = new CloudApiPayloadExtractor(payload);
+      expect(payloadExtractor.getPhoneNumberId()).toEqual(phoneNumberId);
+    });
+  });
 });

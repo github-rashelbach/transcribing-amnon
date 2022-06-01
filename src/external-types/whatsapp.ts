@@ -1,4 +1,11 @@
-import { AudioMessage, ImageMessage, LocationMessage, StickerMessage, TextMessage, UnknownMessage } from './messages';
+import {
+  AudioMessage,
+  ImageMessage,
+  LocationMessage,
+  StickerMessage,
+  TextMessage,
+  UnknownMessage
+} from './messages';
 
 export interface Metadata {
   display_phone_number: string;
@@ -41,3 +48,21 @@ export interface WhatsappMessagePayload {
   object: string;
   entry: Entry[] | null;
 }
+
+export interface OutgoingMessageBase {
+  messaging_product: 'whatsapp';
+  preview_url: boolean;
+  recipient_type: string;
+  to: string;
+}
+
+export interface OutgoingTextBody {
+  type: 'text';
+  text: {
+    body: string;
+  };
+}
+
+export type OutgoingTextMessage = OutgoingMessageBase & OutgoingTextBody
+
+export type OutgoingMessage = OutgoingTextMessage

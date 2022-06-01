@@ -7,15 +7,21 @@ export enum LoggerMessages {
   CloudApiVerifyWebhook = 'CloudApiVerifyWebhook',
   CloudApiIncomingMessage = 'CloudApiIncomingMessage',
   WhatsappPayload = 'WhatsappPayload',
+  NoHandlerForTypeOfMessage = 'NoHandlerForTypeOfMessage',
   TwilioIncomingMessage = 'TwilioIncomingMessage',
   GoogleSpeechToTextResponse = 'GoogleSpeechToTextResponse',
   DownloadFile = 'DownloadFile',
+  SendMessage = 'SendMessage',
+  SendMessageSuccess = 'SendMessageSuccess',
+  SendMessageError = 'SendMessageError',
   DownloadFileError = 'DownloadFileError',
   GetMediaUrl = 'GetMediaUrl',
   MediaURL = 'MediaURL',
   GetMediaUrlError = 'GetMediaUrlError',
+  CouldNotGetAudioFromAudioMessage = 'CouldNotGetAudioFromAudioMessage',
   ReceivedTextMessage = 'ReceivedTextMessage',
   TranscriptionSuccess = 'TranscriptionSuccess',
+  ReplyingToMessage = 'ReplyingToMessage',
 }
 
 export const createLogger = (event: APIGatewayProxyEventV2, context: Context) => {

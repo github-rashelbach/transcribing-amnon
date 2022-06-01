@@ -13,6 +13,7 @@ import { SpeechToText } from '../services/speech-to-text/speech-to-text';
 import { GoogleSpeechToTextProvider } from '../services/speech-to-text/providers/google';
 import { APIGatewayProxyEventV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { StatusCodes } from 'http-status-codes';
+import { WhatsappService } from '../services/whatsapp';
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN!;
 
@@ -33,6 +34,7 @@ export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, co
 async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpService: HttpService, logger: Logger) {
   logger.info({ whatsappPayload }, LoggerMessages.WhatsappPayload);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
+  const whatsappService = new WhatsappService(httpService);
   switch (payloadExtractor.getMessageType()) {
     case MessageTypes.Text: {
       const text = payloadExtractor.getText();
@@ -41,18 +43,24 @@ async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpServic
     }
     case MessageTypes.Audio: {
       const speechToText = new SpeechToText(new GoogleSpeechToTextProvider(logger));
+      const fromId = payloadExtractor.getPhoneNumberId();
       const audioData = payloadExtractor.getAudioData();
-      if (audioData) {
+      if (audioData && fromId) {
         const mediaUrl = await httpService.getMediaUrl(audioData.mediaId);
         const data = await httpService.downloadFile(mediaUrl);
         const transcription = await speechToText.recognize(data);
         logger.info({ transcription }, LoggerMessages.TranscriptionSuccess);
-        return LambdaResponder.success(JSON.stringify({ transcription }));
+        logger.info({}, LoggerMessages.ReplyingToMessage);
+        await whatsappService.sendTextMessage(fromId, transcription, audioData.senderId);
+        return LambdaResponder.success(JSON.stringify({ transcription, fromId, audioData }));
       }
-      return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not find audio when type is audio');
+      logger.info({ audioData }, LoggerMessages.CouldNotGetAudioFromAudioMessage);
+      return LambdaResponder.success(JSON.stringify({ message: 'Could not find audio when type is audio' }));
+
     }
     default:
-      return LambdaResponder.error(StatusCodes.BAD_REQUEST, 'Could not response with body');
+      logger.info({}, LoggerMessages.NoHandlerForTypeOfMessage);
+      return LambdaResponder.success(JSON.stringify({}));
   }
 
 }

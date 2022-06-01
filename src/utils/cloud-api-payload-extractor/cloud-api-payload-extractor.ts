@@ -50,4 +50,8 @@ export class CloudApiPayloadExtractor {
     }
     return null;
   }
+
+  getPhoneNumberId(): string | null {
+    return this.payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id || null;
+  }
 }
