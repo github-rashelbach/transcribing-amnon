@@ -50,8 +50,11 @@ async function handleMessage(whatsappPayload: WhatsappMessagePayload, httpServic
         const data = await httpService.downloadFile(mediaUrl);
         const transcription = await speechToText.recognize(data);
         logger.info({ transcription }, LoggerMessages.TranscriptionSuccess);
-        logger.info({}, LoggerMessages.ReplyingToMessage);
-        await whatsappService.sendTextMessage(fromId, transcription, audioData.senderId);
+        if (transcription) {
+          logger.info({}, LoggerMessages.ReplyingToMessage);
+          await whatsappService.sendTextMessage(fromId, transcription, audioData.senderId);
+        }
+
         return LambdaResponder.success(JSON.stringify({ transcription, fromId, audioData }));
       }
       logger.info({ audioData }, LoggerMessages.CouldNotGetAudioFromAudioMessage);
