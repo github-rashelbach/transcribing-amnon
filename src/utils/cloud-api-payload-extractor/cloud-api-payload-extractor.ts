@@ -1,6 +1,5 @@
-import { MessageBody, WhatsappMessagePayload } from '../../external-types/whatsapp';
-import { FacebookAudioRecording } from '../../types';
-import { AudioMessage, TextMessage } from '../../external-types/messages';
+import { WhatsappMessagePayload } from '../../external-types/whatsapp';
+import { Message } from '../../external-types/messages';
 
 export enum MessageTypes {
   Audio = 'audio',
@@ -24,34 +23,20 @@ export class CloudApiPayloadExtractor {
   constructor(private readonly payload: WhatsappMessagePayload) {
   }
 
-  static isAudio(message: MessageBody | undefined): message is MessageBody & AudioMessage {
-    return message?.type === MessageTypes.Audio;
-  }
-
   getMessageType(): string | null {
     const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     return CloudApiTypeToType[message?.type || ''] || null;
   }
 
-  getText(): string | null {
-    const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    return this.getMessageType() === MessageTypes.Text ? (message as TextMessage).text.body : null;
-  }
-
-  getAudioData(): FacebookAudioRecording | null {
-    const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (this.getMessageType() === MessageTypes.Audio) {
-      return {
-        mediaId: (message as AudioMessage).audio.id,
-        messageId: message?.id || '',
-        timestamp: message?.timestamp || '',
-        senderId: message?.from || '',
-      };
-    }
-    return null;
+  getMessage(): Message | null {
+    return this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0] || null;
   }
 
   getPhoneNumberId(): string | null {
     return this.payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id || null;
+  }
+
+  getSender(): string | null {
+    return this.getMessage()?.from || null;
   }
 }

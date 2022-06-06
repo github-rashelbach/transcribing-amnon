@@ -13,15 +13,28 @@ provider:
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
 
+constructs:
+  transcriptionRequest:
+    type: queue
+    worker:
+      handler: src/handlers/transcription-request-handler.handle
+
 functions:
   handleMessage:
     handler: src/handlers/cloud-api-handler.cloudApiHandler
-    timeout: 100
-    memorySize: 512
+    memorySize: 128
+    environment:
+      TRANSCRIPTION_REQUEST_QUEUE_URL: ${construct:transcriptionRequest.queueUrl}
     events:
       - httpApi:
           path: /incoming-message
-          method: '*'
+          method: 'POST'
+  handleTranscriptionRequest:
+    handler: src/handlers/transcription-request-handler.handle
+    timeout: 100
+    memorySize: 512
+
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-lift

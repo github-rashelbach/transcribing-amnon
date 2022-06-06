@@ -1,7 +1,6 @@
 import pino from 'pino';
 import { lambdaRequestTracker, pinoLambdaDestination } from 'pino-lambda';
 import { Context } from 'aws-lambda';
-import { APIGatewayProxyEventV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 
 export enum LoggerMessages {
   CloudApiVerifyWebhook = 'CloudApiVerifyWebhook',
@@ -22,9 +21,11 @@ export enum LoggerMessages {
   ReceivedTextMessage = 'ReceivedTextMessage',
   TranscriptionSuccess = 'TranscriptionSuccess',
   ReplyingToMessage = 'ReplyingToMessage',
+  ReceivedUnsupportedMessage = 'ReceivedUnsupportedMessage',
+  UnsupportedMessageType = 'UnsupportedMessageType',
 }
 
-export const createLogger = (event: APIGatewayProxyEventV2, context: Context) => {
+export const createLogger = (event: any, context: Context) => {
   const destination = pinoLambdaDestination();
   lambdaRequestTracker()(event, context);
   return pino({}, destination);

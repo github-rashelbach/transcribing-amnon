@@ -1,11 +1,4 @@
-import {
-  AudioMessage,
-  ImageMessage,
-  LocationMessage,
-  StickerMessage,
-  TextMessage,
-  UnknownMessage
-} from './messages';
+import { Message } from './messages';
 
 export interface Metadata {
   display_phone_number: string;
@@ -25,13 +18,14 @@ export type MessageBody = {
   from: string;
   id: string;
   timestamp: string;
-} & (TextMessage | ImageMessage | StickerMessage | AudioMessage | UnknownMessage | LocationMessage);
+}
+
 
 export interface Value {
   messaging_product: string;
   metadata: Metadata;
   contacts: Contact[];
-  messages: MessageBody[];
+  messages: Message[];
 }
 
 export interface Change {
