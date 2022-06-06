@@ -2,9 +2,8 @@ import { Handler } from 'aws-lambda';
 import { APIGatewayProxyEventV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { createLogger, LoggerMessages } from '../services/logger';
 import { HttpService } from '../services/http';
-import { Duplex } from 'stream';
-import { getAudioDurationInSeconds } from 'get-audio-duration';
 import { LambdaResponder } from '../utils/lambda-responder';
+import { AudioUtils } from '../utils/audio-utils';
 
 export const handle: Handler<APIGatewayProxyEventV2> = async (event, context) => {
   const logger = createLogger(event, context);
@@ -14,9 +13,6 @@ export const handle: Handler<APIGatewayProxyEventV2> = async (event, context) =>
 
   const url = await httpService.getMediaUrl(message.mediaId);
   const bytes = await httpService.downloadFile(url);
-  const stream = new Duplex()
-  stream.push(bytes);
-  stream.push(null);
-  const duration = await getAudioDurationInSeconds(stream);
+  const duration = await AudioUtils.getAudioDurationInSeconds(Buffer.from(bytes));
   return LambdaResponder.success(JSON.stringify({ duration }));
 };
