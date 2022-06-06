@@ -4,7 +4,7 @@ import { LoggerMessages } from '../services/logger';
 import { Services } from '../services';
 
 export const handleAudio: MessageHandler<AudioMessage> = async (message: AudioMessage, phoneNumberId: string, services: Services) => {
-  const { httpService, speechToText, whatsappService, logger } = services;
+  const { httpService, speechToText, logger, publisher } = services;
   if (message.audio) {
     const mediaUrl = await httpService.getMediaUrl(message.audio.id);
     const data = await httpService.downloadFile(mediaUrl);
@@ -12,7 +12,11 @@ export const handleAudio: MessageHandler<AudioMessage> = async (message: AudioMe
     logger.info({ transcription }, LoggerMessages.TranscriptionSuccess);
     if (transcription) {
       logger.info({}, LoggerMessages.ReplyingToMessage);
-      await whatsappService.sendTextMessage(phoneNumberId, transcription, message.from);
+      await publisher.publishToNotificationQueue({
+        fromId: phoneNumberId,
+        to: message.from,
+        text: transcription
+      });
     }
   }
 };

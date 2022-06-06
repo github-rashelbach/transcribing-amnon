@@ -14,10 +14,20 @@ provider:
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
 
 constructs:
+  nofiticationsQueue:
+    type: queue
+    worker:
+      handler: src/handlers/notification-handler.handle
+      timeout: 10
+      memorySize: 128
   transcriptionRequest:
     type: queue
     worker:
       handler: src/handlers/transcription-request-handler.handle
+      timeout: 100
+      memorySize: 512
+      environment:
+        NOTIFICATIONS_QUEUE_URL: ${construct:nofiticationsQueue.queueUrl}
 
 functions:
   handleMessage:
@@ -29,11 +39,6 @@ functions:
       - httpApi:
           path: /incoming-message
           method: 'POST'
-  handleTranscriptionRequest:
-    handler: src/handlers/transcription-request-handler.handle
-    timeout: 100
-    memorySize: 512
-
 
 plugins:
   - serverless-plugin-typescript

@@ -1,5 +1,5 @@
 import { Logger } from 'pino';
-import { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { LoggerMessages } from './logger';
 import { OutgoingMessage } from '../external-types/whatsapp';
 
@@ -15,7 +15,10 @@ export interface IHttpService {
 }
 
 export class HttpService implements IHttpService {
-  constructor(private readonly logger: Logger, private readonly httpClient: AxiosInstance) {
+  private readonly httpClient: AxiosInstance;
+
+  constructor(private readonly logger: Logger, token = process.env.CLOUD_API_TOKEN) {
+    this.httpClient = axios.create({ headers: { 'Authorization': 'Bearer ' + token } });
   }
 
   getMediaUrl(mediaId: string): Promise<string> {
@@ -42,7 +45,7 @@ export class HttpService implements IHttpService {
     const url = Urls.Messages(fromPhoneNumberId);
     this.logger.info({ message }, LoggerMessages.SendMessage);
     return this.httpClient.post(url, message)
-      .then(({data}) => {
+      .then(({ data }) => {
         this.logger.info({ data }, LoggerMessages.SendMessageSuccess);
         return true;
       })

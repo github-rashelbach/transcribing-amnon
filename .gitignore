@@ -8,3 +8,5 @@ dist
 .serverless
 
 .build
+
+cloud-api-message.json
