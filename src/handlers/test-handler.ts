@@ -11,7 +11,7 @@ export const handle: Handler<APIGatewayProxyEventV2> = async (event, context) =>
   const httpService = new HttpService(logger);
   logger.info({ event }, LoggerMessages.CloudApiIncomingMessage);
   const message = JSON.parse(event.body!);
-  
+
   const url = await httpService.getMediaUrl(message.mediaId);
   const bytes = await httpService.downloadFile(url);
   const stream = new Duplex()
