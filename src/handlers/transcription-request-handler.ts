@@ -34,7 +34,7 @@ export const handle: SQSHandler = async (event, context) => {
 
     const messageHandler = messageType ? MessageTypeToHandler[messageType] : null;
     if (messageHandler) {
-      messageHandler(payloadExtractor.getMessage(), fromId, services);
+      await messageHandler(payloadExtractor.getMessage(), fromId, services);
     } else {
       logger.info({ messageType }, LoggerMessages.UnsupportedMessageType);
     }

@@ -30,6 +30,6 @@ export class Publisher implements IPublisher {
   }
 
   public publishToNotificationQueue(message: NotifyMessage): Promise<void> {
-    return this.notify(JSON.stringify(message), QueueUrls.TranscriptionQueue);
+    return this.notify(JSON.stringify(message), QueueUrls.NotificationsQueue);
   }
 }

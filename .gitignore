@@ -9,4 +9,5 @@ dist
 
 .build
 
-cloud-api-message.json
+test-events
+

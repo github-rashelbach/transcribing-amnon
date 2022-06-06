@@ -17,7 +17,7 @@ export interface IHttpService {
 export class HttpService implements IHttpService {
   private readonly httpClient: AxiosInstance;
 
-  constructor(private readonly logger: Logger, token = process.env.CLOUD_API_TOKEN) {
+  constructor(private readonly logger: Logger, token = process.env.CLOUD_API_ACCESS_TOKEN) {
     this.httpClient = axios.create({ headers: { 'Authorization': 'Bearer ' + token } });
   }
 

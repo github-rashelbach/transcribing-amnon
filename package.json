@@ -12,7 +12,8 @@
     "predeploy": "npm run test",
     "lint": "eslint .",
     "deploy": "serverless deploy",
-    "run-local": "serverless invoke local --function transcriptionRequestWorker --path cloud-api-message.json"
+    "run-transcription": "serverless invoke local --function transcriptionRequestWorker --path test-events/cloud-api-message.json",
+    "run-notify": "serverless invoke local --function nofiticationsQueueWorker --path test-events/notify.json"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.100.0",
