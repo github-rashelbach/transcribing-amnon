@@ -13,6 +13,6 @@ export const handle: Handler<APIGatewayProxyEventV2> = async (event, context) =>
 
   const url = await httpService.getMediaUrl(message.mediaId);
   const bytes = await httpService.downloadFile(url);
-  const duration = await AudioUtils.getAudioDurationInSeconds(Buffer.from(bytes));
+  const duration = await AudioUtils.getAudioDurationInSeconds(Buffer.from(bytes), logger);
   return LambdaResponder.success(JSON.stringify({ duration }));
 };

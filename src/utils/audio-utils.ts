@@ -1,8 +1,9 @@
-import execa  from 'execa';
+import execa from 'execa';
+import { Logger } from 'pino';
 
 
 export const AudioUtils = {
-  async getAudioDurationInSeconds(input: Buffer) {
+  async getAudioDurationInSeconds(input: Buffer, logger: Logger) {
     const ffprobeParams = [
       '-v',
       'error',
@@ -13,12 +14,19 @@ export const AudioUtils = {
       '-i',
       'pipe:0'
     ];
-    const { stdout } = await execa('ffprobe', ffprobeParams, {
-      reject: false,
-      input
-    });
-    const matched = stdout.match(/duration="?(\d*\.\d*)"?/);
-    return matched && matched[1] ? parseFloat(matched[1]) : 0;
+    try {
+      const { stdout, stderr } = await execa('ffprobe', ffprobeParams, {
+        input
+      });
+      logger.info({ stdout }, 'ffprobe stdout');
+      logger.info({ stderr }, 'ffprobe stderr');
+      const matched = stdout.match(/duration="?(\d*\.\d*)"?/);
+      return matched && matched[1] ? parseFloat(matched[1]) : 0;
+    } catch (e) {
+      logger.error({ e }, 'ffprobe error');
+      return 0;
+    }
+
 
   }
 };
