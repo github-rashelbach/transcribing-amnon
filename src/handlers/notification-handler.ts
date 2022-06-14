@@ -4,6 +4,7 @@ import { HttpService } from '../services/http';
 import { createLogger, LoggerMessages } from '../services/logger';
 import { WhatsappService } from '../services/whatsapp';
 
+
 export const handle: SQSHandler = async (event, context) => {
   const logger = createLogger(event, context);
   const httpService = new HttpService(logger);

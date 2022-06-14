@@ -11,7 +11,6 @@ import { Services } from '../services';
 import { MessageTypeToHandler } from '../message-handlers';
 import { Publisher } from '../services/publisher';
 
-const IM_ON_IT = 'קיבלתי, אני על זה!';
 
 export const handle: SQSHandler = async (event, context) => {
   const logger = createLogger(event, context);
@@ -19,8 +18,8 @@ export const handle: SQSHandler = async (event, context) => {
   const httpService = new HttpService(logger);
   const whatsappPayload: WhatsappMessagePayload = JSON.parse(event.Records[0].body);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
-  const fromId = payloadExtractor.getPhoneNumberId();
-  const sender = payloadExtractor.getSender();
+  const fromId = payloadExtractor.phoneNumberId;
+  const sender = payloadExtractor.sender;
   logger.info({ whatsappPayload }, LoggerMessages.WhatsappPayload);
   const services: Services = {
     httpService,
@@ -29,12 +28,11 @@ export const handle: SQSHandler = async (event, context) => {
     speechToText: new SpeechToText(new GoogleSpeechToTextProvider(logger)),
   };
   if (fromId && sender) {
-    await publisher.publishToNotificationQueue({fromId, to: sender, text: IM_ON_IT});
-    const messageType = payloadExtractor.getMessageType();
+    const messageType = payloadExtractor.messageType;
 
     const messageHandler = messageType ? MessageTypeToHandler[messageType] : null;
     if (messageHandler) {
-      await messageHandler(payloadExtractor.getMessage(), fromId, services);
+      await messageHandler(payloadExtractor.message, fromId, services);
     } else {
       logger.info({ messageType }, LoggerMessages.UnsupportedMessageType);
     }

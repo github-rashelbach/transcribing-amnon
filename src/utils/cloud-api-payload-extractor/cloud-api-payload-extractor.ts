@@ -23,20 +23,20 @@ export class CloudApiPayloadExtractor {
   constructor(private readonly payload: WhatsappMessagePayload) {
   }
 
-  getMessageType(): string | null {
+  get messageType(): string | null {
     const message = this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     return CloudApiTypeToType[message?.type || ''] || null;
   }
 
-  getMessage(): Message | null {
+  get message(): Message | null {
     return this.payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0] || null;
   }
 
-  getPhoneNumberId(): string | null {
+  get phoneNumberId(): string | null {
     return this.payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id || null;
   }
 
-  getSender(): string | null {
-    return this.getMessage()?.from || null;
+  get sender(): string | null {
+    return this.message?.from || null;
   }
 }

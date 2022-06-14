@@ -5,6 +5,10 @@ import { Logger } from 'pino';
 import { APIGatewayProxyEventV2 } from 'aws-lambda/trigger/api-gateway-proxy';
 import { StatusCodes } from 'http-status-codes';
 import { Publisher } from '../services/publisher';
+import {
+  CloudApiPayloadExtractor
+} from '../utils/cloud-api-payload-extractor/cloud-api-payload-extractor';
+import Content from '../content.json';
 
 
 export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, context) => {
@@ -15,7 +19,18 @@ export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, co
     return verifyWebhook(event, logger);
   }
   if (event.body) {
-    await publisher.publishToTranscriptionQueue(JSON.parse(event.body));
+    const whatsappPayload = JSON.parse(event.body);
+    const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
+    const fromId = payloadExtractor.phoneNumberId;
+    const sender = payloadExtractor.sender;
+    if (sender && fromId) {
+      await Promise.all([
+        publisher.publishToNotificationQueue({ fromId, to: sender, text: Content.ImOnIt }),
+        publisher.publishToTranscriptionQueue(whatsappPayload)
+      ]);
+    }
+
+
   }
   return LambdaResponder.success('SUCCESS');
 };

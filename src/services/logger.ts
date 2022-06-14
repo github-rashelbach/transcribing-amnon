@@ -23,6 +23,8 @@ export enum LoggerMessages {
   ReceivedTextMessage = 'ReceivedTextMessage',
   TranscriptionSuccess = 'TranscriptionSuccess',
   ReplyingToMessage = 'ReplyingToMessage',
+  CouldNotTranscribe = 'CouldNotTranscribe',
+  TimeLimit = 'TimeLimit',
   ReceivedUnsupportedMessage = 'ReceivedUnsupportedMessage',
   UnsupportedMessageType = 'UnsupportedMessageType',
   NotifyRequest = 'NotifyRequest',
