@@ -35,6 +35,7 @@ functions:
     memorySize: 128
     environment:
       TRANSCRIPTION_REQUEST_QUEUE_URL: ${construct:transcriptionRequest.queueUrl}
+      NOTIFICATIONS_QUEUE_URL: ${construct:nofiticationsQueue.queueUrl}
     events:
       - httpApi:
           path: /incoming-message

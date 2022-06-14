@@ -4,19 +4,12 @@ import { MessageTypes } from '../utils/cloud-api-payload-extractor/cloud-api-pay
 import { LoggerMessages } from '../services/logger';
 import { Message } from '../external-types/messages';
 import { handleAudio } from './audio';
-import Content from '../content.json';
 
 export type MessageHandler<T extends MessageBody = any> = (message: T, phoneNumberId: string, services: Services) => Promise<void>;
 
 const genericHandler: MessageHandler<Message> = async (message, phoneNumberId, services) => {
-  const { logger, publisher } = services;
+  const { logger } = services;
   logger.info({ message }, LoggerMessages.ReceivedUnsupportedMessage);
-  await publisher.publishToNotificationQueue({
-    fromId: phoneNumberId,
-    to: message.from,
-    text: Content.IncomingMessageNotSupported
-  });
-
 };
 
 export const MessageTypeToHandler: Record<MessageTypes, MessageHandler> = {
