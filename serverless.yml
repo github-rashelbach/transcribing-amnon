@@ -6,13 +6,14 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs14.x
+
   environment:
     GCLOUD_PROJECT_ID: ${param:GCLOUD_PROJECT_ID}
     GCLOUD_CLIENT_EMAIL: ${param:GCLOUD_CLIENT_EMAIL}
     GCLOUD_PRIVATE_KEY: ${param:GCLOUD_PRIVATE_KEY}
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
-    USERS_TABLE: ${self:service}-${self:provider.stage}
+    USERS_TABLE: ${self:service}-${sls:stage}
     REGION: ${aws:region}
   iam:
     role:
@@ -25,7 +26,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
+          Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.USERS_TABLE}"
 
 resources:
   Resources:

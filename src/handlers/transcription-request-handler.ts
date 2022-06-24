@@ -14,11 +14,12 @@ import { UsersService } from '../services/users';
 import { createDynamoDBClient } from '../model/db';
 
 
+
 export const handle: SQSHandler = async (event, context) => {
   const logger = createLogger(event, context);
   const publisher = new Publisher();
   const httpService = new HttpService(logger);
-  const userService = new UsersService(createDynamoDBClient());
+  const userService = new UsersService(createDynamoDBClient(), logger);
   const whatsappPayload: WhatsappMessagePayload = JSON.parse(event.Records[0].body);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
   const fromId = payloadExtractor.phoneNumberId;

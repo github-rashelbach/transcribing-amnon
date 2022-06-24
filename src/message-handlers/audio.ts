@@ -28,7 +28,7 @@ export const handleAudio: MessageHandler<AudioMessage> = async (message: AudioMe
 
     if (duration < 60) {
       await handleDurationInLimit(data);
-      await services.users.updateUserUsage(metadata.fromId, {
+      await services.users.updateUserUsage(metadata.to, {
         duration,
         createdAt: new Date().toISOString()
       });
