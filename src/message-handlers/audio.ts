@@ -28,6 +28,10 @@ export const handleAudio: MessageHandler<AudioMessage> = async (message: AudioMe
 
     if (duration < 60) {
       await handleDurationInLimit(data);
+      await services.users.updateUserUsage(metadata.fromId, {
+        duration,
+        createdAt: new Date().toISOString()
+      });
     } else {
       logger.info({ duration }, LoggerMessages.TimeLimit);
       await publisher.publishToNotificationQueue({ ...metadata, text: Content.TimeLimit });

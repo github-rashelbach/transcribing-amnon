@@ -10,12 +10,15 @@ import { GoogleSpeechToTextProvider } from '../services/speech-to-text/providers
 import { Services } from '../services';
 import { MessageTypeToHandler } from '../message-handlers';
 import { Publisher } from '../services/publisher';
+import { UsersService } from '../services/users';
+import { createDynamoDBClient } from '../model/db';
 
 
 export const handle: SQSHandler = async (event, context) => {
   const logger = createLogger(event, context);
   const publisher = new Publisher();
   const httpService = new HttpService(logger);
+  const userService = new UsersService(createDynamoDBClient());
   const whatsappPayload: WhatsappMessagePayload = JSON.parse(event.Records[0].body);
   const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
   const fromId = payloadExtractor.phoneNumberId;
@@ -25,6 +28,7 @@ export const handle: SQSHandler = async (event, context) => {
     httpService,
     logger,
     publisher,
+    users: userService,
     speechToText: new SpeechToText(new GoogleSpeechToTextProvider(logger)),
   };
   if (fromId && sender) {
@@ -37,7 +41,6 @@ export const handle: SQSHandler = async (event, context) => {
       logger.info({ messageType }, LoggerMessages.UnsupportedMessageType);
     }
   }
-
 
 
 };

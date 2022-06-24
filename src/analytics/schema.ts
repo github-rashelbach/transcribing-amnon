@@ -1,4 +1,8 @@
-export interface IncomingMessage {
+export enum DBNames {
+  messages = 'messages'
+}
+
+export interface Message {
   userId: string; // phone number
   messageId: string;
   senderId: string;
@@ -6,6 +10,7 @@ export interface IncomingMessage {
   createdAt: string;
   messageType: string;
 }
+
 
 export enum MessageType {
   TranscriptionRequest = 'transcription_request',

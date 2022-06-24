@@ -12,7 +12,38 @@ provider:
     GCLOUD_PRIVATE_KEY: ${param:GCLOUD_PRIVATE_KEY}
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
+    USERS_TABLE: ${self:service}-${self:provider.stage}
+    REGION: ${aws:region}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
 
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        SSESpecification:
+          SSEEnabled: true
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 constructs:
   nofiticationsQueue:
     type: queue
@@ -28,11 +59,23 @@ constructs:
       memorySize: 512
       environment:
         NOTIFICATIONS_QUEUE_URL: ${construct:nofiticationsQueue.queueUrl}
-
+  biMessagesQueue:
+    type: queue
+    worker:
+      handler: src/handlers/bi-writer-handler.handle
+      timeout: 10
+      memorySize: 128
+      environment:
+        BI_DB_ENDPOINT: ${param:AMNON_BI_ENDPOINT}
+        BI_DB_PORT: ${param:AMNON_BI_PORT}
+        BI_DB_USERNAME: ${param:AMNON_BI_USERNAME}
+        BI_DB_PASSWORD: ${param:AMNON_BI_PASSWORD}
+        BI_DB_NAME: ${param:AMNON_BI_DB_NAME}
 functions:
   handleMessage:
     handler: src/handlers/cloud-api-handler.cloudApiHandler
     memorySize: 128
+
     environment:
       TRANSCRIPTION_REQUEST_QUEUE_URL: ${construct:transcriptionRequest.queueUrl}
       NOTIFICATIONS_QUEUE_URL: ${construct:nofiticationsQueue.queueUrl}
