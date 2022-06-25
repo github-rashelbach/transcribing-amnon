@@ -15,9 +15,12 @@ const CloudApiTypeToType = {
   image: MessageTypes.Image,
   sticker: MessageTypes.Sticker,
   location: MessageTypes.Location,
-
-
 };
+
+export interface UserInfo {
+  userId: string;
+  name: string;
+}
 
 export class CloudApiPayloadExtractor {
   constructor(private readonly payload: WhatsappMessagePayload) {
@@ -34,6 +37,14 @@ export class CloudApiPayloadExtractor {
 
   get phoneNumberId(): string | null {
     return this.payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id || null;
+  }
+
+  get userInfo(): UserInfo | null {
+    const maybeContact = this.payload.entry?.[0]?.changes?.[0].value?.contacts?.[0];
+    return maybeContact ? {
+      name: maybeContact.profile?.name || '',
+      userId: maybeContact.wa_id
+    } : null;
   }
 
   get sender(): string | null {

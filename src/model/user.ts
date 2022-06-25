@@ -1,9 +1,5 @@
 export interface UserDomain {
   userId: string;
-  usages: UsageDomain[];
+  name: string;
 }
 
-export interface UsageDomain {
-  createdAt: string;
-  duration: number;
-}

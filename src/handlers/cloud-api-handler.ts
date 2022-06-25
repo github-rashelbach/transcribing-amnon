@@ -9,6 +9,8 @@ import {
   CloudApiPayloadExtractor
 } from '../utils/cloud-api-payload-extractor/cloud-api-payload-extractor';
 import Content from '../content.json';
+import { UsersService } from '../services/users';
+import { createDynamoDBClient } from '../model/db';
 
 
 export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, context) => {
@@ -21,13 +23,17 @@ export const cloudApiHandler: Handler<APIGatewayProxyEventV2> = async (event, co
   if (event.body) {
     const whatsappPayload = JSON.parse(event.body);
     const payloadExtractor = new CloudApiPayloadExtractor(whatsappPayload);
+    const usersService = new UsersService(createDynamoDBClient(), logger);
     const fromId = payloadExtractor.phoneNumberId;
     const sender = payloadExtractor.sender;
-    if (sender && fromId) {
-      await Promise.all([
+    const userInfo = payloadExtractor.userInfo;
+    if (sender && fromId && userInfo) {
+      const response = await Promise.allSettled([
+        usersService.insertUser(userInfo.userId, userInfo.name),
         publisher.publishToNotificationQueue({ fromId, to: sender, text: Content.ImOnIt }),
         publisher.publishToTranscriptionQueue(whatsappPayload)
       ]);
+      logger.info({response}, LoggerMessages.IncomingMessageSideEffectsResponse)
     }
 
 

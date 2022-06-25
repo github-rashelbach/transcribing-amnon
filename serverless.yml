@@ -13,7 +13,8 @@ provider:
     GCLOUD_PRIVATE_KEY: ${param:GCLOUD_PRIVATE_KEY}
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
-    USERS_TABLE: ${self:service}-${sls:stage}
+    USERS_TABLE: ${self:service}-users-${sls:stage}
+    MESSAGES_TABLE: ${self:service}-messages-${sls:stage}
     REGION: ${aws:region}
   iam:
     role:
@@ -26,7 +27,9 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-          Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.USERS_TABLE}"
+          Resource:
+            - arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.USERS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.MESSAGES_TABLE}
 
 resources:
   Resources:
@@ -42,6 +45,25 @@ resources:
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    messagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.MESSAGES_TABLE}
+        SSESpecification:
+          SSEEnabled: true
+        AttributeDefinitions:
+          - AttributeName: userIdMessageType
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
@@ -76,7 +98,6 @@ functions:
   handleMessage:
     handler: src/handlers/cloud-api-handler.cloudApiHandler
     memorySize: 128
-
     environment:
       TRANSCRIPTION_REQUEST_QUEUE_URL: ${construct:transcriptionRequest.queueUrl}
       NOTIFICATIONS_QUEUE_URL: ${construct:nofiticationsQueue.queueUrl}

@@ -28,9 +28,9 @@ export enum LoggerMessages {
   ReceivedUnsupportedMessage = 'ReceivedUnsupportedMessage',
   UnsupportedMessageType = 'UnsupportedMessageType',
   NotifyRequest = 'NotifyRequest',
-  UserCreated = 'UserCreated',
-  UpdatedExistingUser = 'UpdatedExistingUser',
-  StartUpdateUserUsage = 'StartUpdateUserUsage',
+  CreatingUser = 'CreatingUser',
+  AddingMessage = 'AddingMessage',
+  IncomingMessageSideEffectsResponse = 'IncomingMessageSideEffectsResponse',
 }
 
 export const createLogger = (event: any, context: Context) => {

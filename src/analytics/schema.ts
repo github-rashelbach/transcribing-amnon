@@ -12,9 +12,9 @@ export interface Message {
 }
 
 
-export enum MessageType {
-  TranscriptionRequest = 'transcription_request',
-  TranscriptionSuccess = 'transcription_success',
-  LimitExceeded = 'limit_exceeded',
-  NoPossibleTranscription = 'no_possible_transcription',
-}
+// export enum MessageType {
+//   TranscriptionRequest = 'transcription_request',
+//   TranscriptionSuccess = 'transcription_success',
+//   LimitExceeded = 'limit_exceeded',
+//   NoPossibleTranscription = 'no_possible_transcription',
+// }
