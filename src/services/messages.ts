@@ -30,7 +30,8 @@ export class MessagesService {
     this.logger.info({ params }, LoggerMessages.AddingMessage);
     const cmd = new PutItemCommand({
         TableName: this.messagesTableName,
-        Item: marshall(messageDomain)
+        Item: marshall(messageDomain),
+
       }
     );
     return this.dbClient.send(cmd);

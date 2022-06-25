@@ -60,7 +60,7 @@ resources:
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: userIdMessageType
             KeyType: HASH
           - AttributeName: createdAt
             KeyType: RANGE
