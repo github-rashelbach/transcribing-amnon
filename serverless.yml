@@ -14,7 +14,7 @@ provider:
     CLOUD_API_ACCESS_TOKEN: ${param:CLOUD_API_ACCESS_TOKEN}
     WEBHOOK_VERIFY_TOKEN: ${param:WEBHOOK_VERIFY_TOKEN}
     USERS_TABLE: ${self:service}-users-${sls:stage}
-    MESSAGES_TABLE: ${self:service}-messages-${sls:stage}
+    MESSAGES_TABLE: ${self:service}-messages-v2-${sls:stage}
     REGION: ${aws:region}
   iam:
     role:
